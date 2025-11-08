@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord Token Analyzer & Bot</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Discord Token Analyzer & Bot</h1>
+            <p>View token activity and manage custom commands</p>
+        </div>
+
+        <div id="tokenSection" class="card">
+            <div class="form-group">
+                <label for="tokenInput">Discord User Token</label>
+                <input type="password" id="tokenInput" placeholder="Enter your Discord user token">
+                <span class="help-text">Your token is stored locally and used to fetch account data and run commands</span>
+            </div>
+            <button class="btn btn-primary" onclick="analyzeToken()">Analyze Token</button>
+            <div id="tokenError" class="error hidden"></div>
+        </div>
+
+        <div id="mainSection" class="hidden">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('activity')">Token Activity</button>
+                <button class="tab-btn" onclick="switchTab('commands')">Command Manager</button>
+                <button class="tab-btn" onclick="switchTab('docs')">Documentation</button>
+            </div>
+
+            <div id="activityTab">
+                <div class="card">
+                    <h2 style="margin-bottom: 1.5rem; color: #ffffff;">Account Overview</h2>
+                    <div class="stats-grid" id="statsGrid"></div>
+                </div>
+
+                <div class="card">
+                    <h2 style="margin-bottom: 1.5rem; color: #ffffff;">Login Locations</h2>
+                    <div id="globeContainer"></div>
+                </div>
+
+                <div class="card">
+                    <h2 style="margin-bottom: 1.5rem; color: #ffffff;">Recent Locations</h2>
+                    <div id="locationList" class="location-list"></div>
+                </div>
+            </div>
+
+            <div id="commandsTab" class="hidden">
+                <div class="card">
+                    <h2 style="margin-bottom: 1.5rem; color: #ffffff;">Create New Command</h2>
+                    <div class="form-group">
+                        <label for="cmdName">Command Name</label>
+                        <input type="text" id="cmdName" placeholder="e.g., ping, hello, info">
+                    </div>
+                    <div class="form-group">
+                        <label for="cmdPrefix">Prefix</label>
+                        <input type="text" id="cmdPrefix" placeholder="e.g., !, ., /">
+                    </div>
+                    <div class="form-group">
+                        <label for="cmdDescription">Description</label>
+                        <input type="text" id="cmdDescription" placeholder="What does this command do?">
+                    </div>
+                    <div class="form-group">
+                        <label for="cmdCode">Command Code</label>
+                        <textarea id="cmdCode" placeholder="// Use bot.sendMessage(channelId, content) to send messages">// Use bot.sendMessage(channelId, content) to send messages
+// Access args with: args[0], args[1], etc.
+// Example:
+bot.sendMessage(message.channel_id, 'Hello, ' + message.author.username + '!');</textarea>
+                    </div>
+                    <button class="btn btn-success" onclick="addCommand()">Add Command</button>
+                    <div id="commandError" class="error hidden"></div>
+                    <div id="commandSuccess" class="success hidden"></div>
+                </div>
+
+                <div class="card">
+                    <h2 style="margin-bottom: 1.5rem; color: #ffffff;">Your Commands</h2>
+                    <div id="commandList" class="command-list"></div>
+                </div>
+
+                <div class="card">
+                    <h2 style="margin-bottom: 1.5rem; color: #ffffff;">Bot Status</h2>
+                    <button class="btn btn-success" id="botToggle" onclick="toggleBot()">Start Bot</button>
+                    <div id="botStatus" style="margin-top: 1rem; color: #71717a;">Bot is stopped</div>
+                    <div id="botLogs" style="margin-top: 1rem; max-height: 200px; overflow-y: auto;"></div>
+                </div>
+            </div>
+
+            <div id="docsTab" class="hidden">
+                <div class="card">
+                    <h2 style="margin-bottom: 1.5rem; color: #ffffff;">Command System Documentation</h2>
+                    
+                    <h3 style="color: #e4e4e7; margin-top: 1.5rem; margin-bottom: 1rem;">Available Functions</h3>
+                    
+                    <div style="margin-bottom: 1.5rem;">
+                        <h4 style="color: #a1a1aa; margin-bottom: 0.5rem;">bot.sendMessage(channelId, content)</h4>
+                        <p style="color: #71717a; margin-bottom: 0.5rem;">Send a message to a Discord channel.</p>
+                        <div class="code-block">bot.sendMessage(message.channel_id, 'Hello World!');</div>
+                    </div>
+
+                    <div style="margin-bottom: 1.5rem;">
+                        <h4 style="color: #a1a1aa; margin-bottom: 0.5rem;">bot.editMessage(channelId, messageId, content)</h4>
+                        <p style="color: #71717a; margin-bottom: 0.5rem;">Edit a previously sent message.</p>
+                        <div class="code-block">bot.editMessage(message.channel_id, sentMsg.id, 'Updated!');</div>
+                    </div>
+
+                    <div style="margin-bottom: 1.5rem;">
+                        <h4 style="color: #a1a1aa; margin-bottom: 0.5rem;">bot.deleteMessage(channelId, messageId)</h4>
+                        <p style="color: #71717a; margin-bottom: 0.5rem;">Delete a message.</p>
+                        <div class="code-block">bot.deleteMessage(message.channel_id, message.id);</div>
+                    </div>
+
+                    <h3 style="color: #e4e4e7; margin-top: 2rem; margin-bottom: 1rem;">Available Variables</h3>
+                    
+                    <div style="margin-bottom: 1.5rem;">
+                        <h4 style="color: #a1a1aa; margin-bottom: 0.5rem;">message</h4>
+                        <p style="color: #71717a; margin-bottom: 0.5rem;">The full message object from Discord.</p>
+                        <div class="code-block">// message.content - The message text
+// message.author.username - Who sent it
+// message.channel_id - Which channel
+// message.id - Message ID</div>
+                    </div>
+
+                    <div style="margin-bottom: 1.5rem;">
+                        <h4 style="color: #a1a1aa; margin-bottom: 0.5rem;">args</h4>
+                        <p style="color: #71717a; margin-bottom: 0.5rem;">Array of command arguments (words after command).</p>
+                        <div class="code-block">// For "!say hello world"
+// args[0] = "hello"
+// args[1] = "world"
+const text = args.join(' ');</div>
+                    </div>
+
+                    <h3 style="color: #e4e4e7; margin-top: 2rem; margin-bottom: 1rem;">Example Commands</h3>
+
+                    <div style="margin-bottom: 1.5rem;">
+                        <h4 style="color: #a1a1aa; margin-bottom: 0.5rem;">Echo Command</h4>
+                        <div class="code-block">// Repeats what you say
+if (args.length === 0) {
+    bot.sendMessage(message.channel_id, 'Please provide text to echo!');
+} else {
+    bot.sendMessage(message.channel_id, args.join(' '));
+}</div>
+                    </div>
+
+                    <div style="margin-bottom: 1.5rem;">
+                        <h4 style="color: #a1a1aa; margin-bottom: 0.5rem;">Userinfo Command</h4>
+                        <div class="code-block">// Shows info about the user
+const info = 'Username: ' + message.author.username + '\nID: ' + message.author.id;
+bot.sendMessage(message.channel_id, info);</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="card footer">
+            <div>
+                <strong>Discord Token Analyzer & Bot</strong>
+                <div style="color:#9ca3af; font-size:.9rem;">View activity and manage commands</div>
+            </div>
+            <div class="footer-links">
+                <a href="https://buymeacoffee.com/dabsteprbxf" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
+                    Buy me a coffee
+                </a>
+                <a href="https://youtube.com/@wyobuvzz" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
+                    YouTube
+                </a>
+            </div>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
